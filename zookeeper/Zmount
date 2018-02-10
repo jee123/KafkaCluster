@@ -1,5 +1,5 @@
 #!/bin/bash -xe
-bench_dir=/opt/kafka/kbench
+bench_dir=/opt/scriptKafka
 zoo_file=zookeeper.properties
 zoo_f=$bench_dir/zoo.conf
 pushd $bench_dir
@@ -14,12 +14,15 @@ done < $zoo_f
 
 #mounting on VMs zk-1,zk-3 and zk-4
 
-i = 1
+i=1
 for zoo in $zoo_list
 do
   echo $zoo
   ssh root@$zoo "
   lsblk;
+  umount /dev/vdb;
+  umount /dev/vdc;
+  rm -rf /mnt/* ;
   mkdir /mnt/nvme;
   mkdir /mnt/nvme/tmp;
   mkdir /mnt/nvme/tmp-1;
@@ -30,6 +33,5 @@ do
   echo \"/dev/vdc /mnt/nvme/tmp-1 xfs defaults        0 0\" >> /etc/fstab;
   mount /mnt/nvme/tmp;
   mount /mnt/nvme/tmp-1;
-  i = \$((i+1))
-  "
+  i=\$((i+1));"
 done

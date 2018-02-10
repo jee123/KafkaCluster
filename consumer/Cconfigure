@@ -1,0 +1,48 @@
+#!/bin/bash -xe
+# set up kafka configuration of server.properties
+
+bench_dir=/opt/scriptKafka
+cons_temp_file=$bench_dir/consumer.properties
+brk_f=$bench_dir/brk.conf
+cons_f=$bench_dir/cons.conf
+cons_dest_file=/home/tushar/kafka_2.11-1.0.0/config/
+
+#broker_list=br-0:9092,br-0:9093,br-0:9094
+# creating broker_list below:
+brk_list=""
+[ ! -f $brk_f ] && { echo "$brk_f file not found"; exit 1; }
+
+i=0
+while read f
+do
+  b_uri=$f:9092
+  b_uri_1=$f:9093
+  b_uri_2=$f:9094
+  if [ $i -eq "0" ]
+     then
+          brk_list="$b_uri, $b_uri_1, $b_uri_2"
+     else
+          brk_list="$brk_list,$b_uri, $b_uri_1, $b_uri_2"
+  fi
+  i=$(( i + 1 ))
+done < $brk_f
+
+pushd $bench_dir
+
+##configuring consumer.properties
+sed -i "s/^bootstrap.servers/#bootstrap.servers/" $cons_temp_file
+echo "bootstrap.servers=$brk_list" >> $cons_temp_file
+
+cons_list=""
+[ ! -f $cons_f ] && { echo "$cons_f file not found"; exit 1; }
+
+while read f
+do
+  cons_list="$cons_list $f"
+done < $cons_f
+
+for cons in $cons_list
+do
+  echo $cons
+  scp $cons_temp_file tushar@cons:$cons_dest_file
+done

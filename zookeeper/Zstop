@@ -1,5 +1,5 @@
 #!/bin/bash -xe
-bench_dir=/opt/kafka/kbench
+bench_dir=/opt/scriptKafka
 zoo_f=$bench_dir/zoo.conf
 bin_dir=/root/kafka_2.11-1.0.0/bin
 config_dir=/root/kafka_2.11-1.0.0/config
@@ -17,7 +17,7 @@ done < $zoo_f
 for zoo in $zoo_list
 do
     echo $zoo
-    ssh root@$zoo $bin_dir/zookeeper-server-stop.sh $config_dir/zookeeper.properties
+    ssh root@$zoo $bin_dir/zookeeper-server-stop.sh $config_dir/zookeeper.properties &
     sleep 2
     echo $cmd
 done

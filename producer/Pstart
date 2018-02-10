@@ -3,7 +3,7 @@ source_dir=/home/tushar/sampleInput
 kpath=/home/tushar/kafka_2.11-1.0.0/bin
 prog_STRING=kafka-console-producer.sh
 file_STRING=test13
-bk_list=10.0.0.10:9092
+bk_list=br-0:9092
 TOPIC_NAME=$1
 
 zk=zk-1:2181,zk-3:2181,zk-4:2181

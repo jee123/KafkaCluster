@@ -1,0 +1,11 @@
+#!/bin/bash -xe
+bench_dir=/opt/scriptKafka
+zoo_f=$bench_dir/zoo.conf
+pushd $bench_dir/zookeeper
+./Zinstall
+sleep 3
+./Zmount
+sleep 3
+./Zconfigure
+sleep 3
+./Zstart

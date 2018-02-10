@@ -1,5 +1,5 @@
 #!/bin/bash -xe
-bench_dir=/opt/kafka/kbench
+bench_dir=/opt/scriptKafka
 zoo_f=$bench_dir/zoo.conf
 pushd $bench_dir
 
@@ -13,7 +13,6 @@ done < $zoo_f
 
 for zoo in $zoo_list
 do
+    ssh root@$zoo "rm -rf /root/kafka_2.11-1.0.0"
     scp -r kafka_2.11-1.0.0 root@$zoo:/root
-    #wget http://mirror.reverse.net/pub/apache/kafka/1.0.0/kafka_2.11-1.0.0.tgz
-    #tar-zxvf kafka_2.11-1.0.0.tgz
 done

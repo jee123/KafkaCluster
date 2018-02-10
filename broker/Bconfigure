@@ -1,16 +1,16 @@
 #!/bin/bash -xe
 #The directory scriptKafka is placed in bench_dir
-bench_dir=/opt/kafka/kbench
+bench_dir=/opt/scriptKafka
 brk_temp_file=$bench_dir/server.properties
 brk_temp_file_1=$bench_dir/server-1.properties
 brk_temp_file_2=$bench_dir/server-2.properties
 brk_dest_file=/home/tushar/kafka_2.11-1.0.0/config/
+
 brk_f=$bench_dir/brk.conf
 zoo_quorum=zk-1:2181,zk-3:2181,zk-4:2181
 brk_log_dir=/home/tushar/logs/kafka-logs
 brk_log_dir_1=/home/tushar/logs/kafka-logs-1
 brk_log_dir_2=/home/tushar/logs/kafka-logs-2
-
 
 pushd $bench_dir
 
