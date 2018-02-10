@@ -1,0 +1,23 @@
+#!/bin/bash -xe
+bench_dir=/opt/kafka/kbench
+zoo_f=$bench_dir/zoo.conf
+bin_dir=/root/kafka_2.11-1.0.0/bin
+config_dir=/root/kafka_2.11-1.0.0/config
+cmd="ZOOKEEPER STARTED!"
+pushd $bench_dir
+
+zoo_list=""
+[ ! -f $zoo_f ] && { echo "$zoo_f file not found"; exit 1; }
+
+while read f
+do
+  zoo_list="$zoo_list $f"
+done < $zoo_f
+
+for zoo in $zoo_list
+do
+    echo $zoo
+    ssh root@$zoo $bin_dir/zookeeper-server-start.sh $config_dir/zookeeper.properties
+    sleep 2
+    echo $cmd
+done

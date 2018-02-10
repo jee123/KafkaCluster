@@ -1,0 +1,27 @@
+#!/bin/bash -xe
+bench_dir=/opt/kafka/kbench
+brk_file=server.properties
+brk_f=$bench_dir/brk.conf
+pushd $bench_dir
+
+brk_list=""
+[ ! -f $brk_f ] && { echo "$brk_f file not found"; exit 1; }
+
+while read f
+do
+  brk_list="$brk_list $f"
+done < $brk_f
+
+#mounting on servers with id 0,1 and 2 on 10.0.0.10
+
+for brk in $brk_list
+do
+  echo $brk
+  ssh tushar@$brk "
+  lsblk;
+  mkdir /mnt/nvme;
+  mkdir /mnt/nvme/tmp;
+  mkdir /mnt/nvme/tmp-1;
+  mount /dev/nvme0n1 /home/tushar/logs
+  "
+done

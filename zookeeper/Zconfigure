@@ -1,0 +1,64 @@
+#!/bin/bash -xe
+#The directory scriptKafka is placed in bench_dir
+bench_dir=/opt/kafka/kbench
+zoo_temp_file=$bench_dir/zookeeper.properties
+zoo_dest_file=/root/kafka_2.11-1.0.0/config/
+zoo_f=$bench_dir/zoo.conf
+zoo_snapshot_dir=/mnt/nvme/tmp/zookeeper
+zoo_transactionlog_dir=/mnt/nvme/tmp-1/logsZoo
+zoo_client_port=2181
+zoo_maxClientCnxns=0
+zoo_tickTime=2000
+zoo_initLimit=5
+zoo_syncLimit=2
+zoo_server1=zk-1:2666:3666
+zoo_server2=zk-3:2666:3666
+zoo_server3=zk-4:2666:3666
+
+pushd $bench_dir
+
+zoo_list=""
+[ ! -f $zoo_f ] && { echo "$zoo_f file not found"; exit 1; }
+
+while read f
+do
+  zoo_list="$zoo_list $f"
+done < $zoo_f
+
+#defining the configuration first in temp file
+#Then copy that file to all zookeeper macchines.
+sed -i "s/^dataDir/#dataDir/" $zoo_temp_file
+sed -i "s/^clientPort/#clientPort/" $zoo_temp_file
+sed -i "s/^maxClientCnxns/#maxClientCnxns/" $zoo_temp_file
+sed -i "s/^dataLogDir/#dataLogDir/" $zoo_temp_file
+echo "dataDir=$zoo_snapshot_dir" >> $zoo_temp_file
+echo "clientPort=$zoo_client_port" >> $zoo_temp_file
+echo "maxClientCnxns=$zoo_maxClientCnxns" >> $zoo_temp_file
+echo "tickTime=$zoo_tickTime" >> $zoo_temp_file
+echo "initLimit=$zoo_initLimit" >> $zoo_temp_file
+echo "syncLimit=$zoo_syncLimit" >> $zoo_temp_file
+echo "server.1=zoo_server1" >> $zoo_temp_file
+echo "server.2=zoo_server2" >> $zoo_temp_file
+echo "server.3=zoo_server3" >> $zoo_temp_file
+
+
+for zoo in $zoo_list
+do
+  echo $zoo
+  scp $zoo_temp_file root@$zoo:$zoo_dest_file
+  #ssh root@$zoo "
+  #sed -i \"s/^dataDir/#dataDir/\" $zoo_file;
+  #sed -i \"s/^clientPort/#clientPort/\" $zoo_file;
+  #sed -i \"s/^maxClientCnxns/#maxClientCnxns/\" $zoo_file;
+  #sed -i \"s/^dataLogDir/#dataLogDir/\" $zoo_file;
+  #echo \"dataDir=$zoo_snapshot_dir\" >> $zoo_file;
+  #echo \"clientPort=$zoo_client_port\" >> $zoo_file;
+  #echo \"maxClientCnxns=$zoo_maxClientCnxns\" >> $zoo_file;
+  #echo \"tickTime=$zoo_tickTime\" >> $zoo_file;
+  #echo \"initLimit=$zoo_initLimit\" >> $zoo_file;
+  #echo \"syncLimit=$zoo_syncLimit\" >> $zoo_file;
+  #echo \"server.1=zoo_server1\" >> $zoo_file;
+  #echo \"server.2=zoo_server2\" >> $zoo_file;
+  #echo \"server.3=zoo_server3\" >> $zoo_file;
+  #"
+done

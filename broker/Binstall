@@ -1,0 +1,19 @@
+#!/bin/bash -xe
+bench_dir=/opt/kafka/kbench
+brk_f=$bench_dir/brk.conf
+pushd $bench_dir
+
+brk_list=""
+[ ! -f $brk_f ] && { echo "$brk_f file not found"; exit 1; }
+
+while read f
+do
+  brk_list="$brk_list $f"
+done < $brk_f
+
+for brk in $brk_list
+do
+    scp -r kafka_2.11-1.0.0 tushar@$brk:/home/tushar
+    #wget http://mirror.reverse.net/pub/apache/kafka/1.0.0/kafka_2.11-1.0.0.tgz
+    #tar-zxvf kafka_2.11-1.0.0.tgz
+done

@@ -1,0 +1,11 @@
+#!/bin/bash -xe
+
+TOPIC_NAME=$1
+topic_populate() {
+    for iter in {1..5}
+    do
+        ./Pstart $TOPIC_NAME &
+    done
+}
+
+topic_populate

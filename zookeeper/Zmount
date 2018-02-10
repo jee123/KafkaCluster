@@ -1,0 +1,35 @@
+#!/bin/bash -xe
+bench_dir=/opt/kafka/kbench
+zoo_file=zookeeper.properties
+zoo_f=$bench_dir/zoo.conf
+pushd $bench_dir
+
+zoo_list=""
+[ ! -f $zoo_f ] && { echo "$zoo_f file not found"; exit 1; }
+
+while read f
+do
+  zoo_list="$zoo_list $f"
+done < $zoo_f
+
+#mounting on VMs zk-1,zk-3 and zk-4
+
+i = 1
+for zoo in $zoo_list
+do
+  echo $zoo
+  ssh root@$zoo "
+  lsblk;
+  mkdir /mnt/nvme;
+  mkdir /mnt/nvme/tmp;
+  mkdir /mnt/nvme/tmp-1;
+  mkdir /mnt/nvme/tmp/zookeeper;
+  echo \$i >> /mnt/nvme/tmp/zookeeper/myid;
+  # mount it and add it to /etc/fstab too
+  echo \"/dev/vdb /mnt/nvme/tmp xfs defaults        0 0\" >> /etc/fstab;
+  echo \"/dev/vdc /mnt/nvme/tmp-1 xfs defaults        0 0\" >> /etc/fstab;
+  mount /mnt/nvme/tmp;
+  mount /mnt/nvme/tmp-1;
+  i = \$((i+1))
+  "
+done
