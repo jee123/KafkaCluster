@@ -1,0 +1,12 @@
+#!/bin/bash -xe
+kpath=/root/kafka_2.11-1.0.0/bin
+zk=zk-1:2181,zk-3:2181,zk-4:2181/kafka
+prog=kafka-topics.sh
+
+part_num=$1
+rpf=$2
+topic=$3
+
+host=brk-3
+ssh root@$host $kpath/$prog  --create --zookeeper $zk --replication-factor $rpf --partitions $part_num --topic $topic
+ssh root@$host $kpath/$prog  --list --zookeeper $zk

@@ -1,0 +1,15 @@
+#!/bin/bash -xe
+bench_dir=/opt/scriptKafka
+brk_f=$bench_dir/prd.conf
+TOPIC_NAME=$1
+pushd $bench_dir/producer
+./Pinstall
+sleep 5
+./Pmount
+sleep 5
+./Pconfigure
+sleep 5
+./PcreateTopic 3 1 $TOPIC_NAME
+sleep 15
+#replace Pstart with Pinstances when running mulitple producer instances.
+./Pstart $TOPIC_NAME

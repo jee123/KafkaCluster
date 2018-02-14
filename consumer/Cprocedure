@@ -1,0 +1,12 @@
+#!/bin/bash -xe
+bench_dir=/opt/scriptKafka
+brk_f=$bench_dir/cons.conf
+TOPIC_NAME=$@
+pushd $bench_dir/consumer
+./Cinstall
+sleep 3
+./Cconfigure
+sleep 3
+./Ccompile
+sleep 5
+./Cexecute $TOPIC_NAME

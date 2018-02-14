@@ -1,0 +1,19 @@
+#!/bin/bash -xe
+bench_dir=/opt/scriptKafka
+prd_f=$bench_dir/prd.conf
+pushd $bench_dir
+
+prd_list=""
+[ ! -f $prd_f ] && { echo "$prd_f file not found"; exit 1; }
+
+while read f
+do
+    prd_list="$prd_list $f"
+done < $prd_f
+
+for prd in $prd_list
+do
+    ssh root@$prd "rm -rf /root/kafka_2.11-1.0.0"
+    scp -r kafka_2.11-1.0.0 root@$prd:/root
+done
+

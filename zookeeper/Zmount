@@ -26,12 +26,11 @@ do
   mkdir /mnt/nvme;
   mkdir /mnt/nvme/tmp;
   mkdir /mnt/nvme/tmp-1;
+  mkfs.xfs -f /dev/vdb;
+  mkfs.xfs -f /dev/vdc;
+  mount /dev/vdb /mnt/nvme/tmp;
   mkdir /mnt/nvme/tmp/zookeeper;
-  echo \$i >> /mnt/nvme/tmp/zookeeper/myid;
-  # mount it and add it to /etc/fstab too
-  echo \"/dev/vdb /mnt/nvme/tmp xfs defaults        0 0\" >> /etc/fstab;
-  echo \"/dev/vdc /mnt/nvme/tmp-1 xfs defaults        0 0\" >> /etc/fstab;
-  mount /mnt/nvme/tmp;
-  mount /mnt/nvme/tmp-1;
-  i=\$((i+1));"
+  echo $i >> /mnt/nvme/tmp/zookeeper/myid;
+  mount /dev/vdc /mnt/nvme/tmp-1;"
+  i=$((i+1))
 done

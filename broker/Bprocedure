@@ -1,0 +1,11 @@
+#!/bin/bash -xe
+bench_dir=/opt/scriptKafka
+brk_f=$bench_dir/brk.conf
+pushd $bench_dir/broker
+./Binstall
+sleep 3
+./Bmount
+sleep 3
+./Bconfigure
+sleep 3
+./Bstart

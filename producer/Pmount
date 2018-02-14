@@ -1,0 +1,24 @@
+#!/bin/bash -xe
+bench_dir=/opt/scriptKafka
+prd_f=$bench_dir/prd.conf
+pushd $bench_dir
+
+prd_list=""
+[ ! -f $prd_f ] && { echo "$prd_f file not found"; exit 1; }
+
+while read f
+do
+    prd_list="$prd_list $f"
+done < $prd_f
+
+
+for prd in $prd_list
+do
+    echo $prd
+    ssh root@$prd "
+    lsblk;
+    umount /dev/vdb;
+    mkdir /root/sampleData;
+    mkfs.xfs -f /dev/vdb;
+    mount /dev/vdb /root/sampleData;"
+done

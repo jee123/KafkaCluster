@@ -1,0 +1,12 @@
+#!/bin/bash -xe
+kpath=/root/kafka_2.11-1.0.0/bin
+prog=kafka-topics.sh
+zk=zk-1:2181,zk-3:2181,zk-4:2181/kafka
+topics=$@
+host=prd-1
+for tp in $topics
+do
+   ssh root@$host "$kpath/$prog --delete --zookeeper $zk --topic $tp"
+done
+
+ssh root@$host "$kpath/$prog --list --zookeeper $zk"

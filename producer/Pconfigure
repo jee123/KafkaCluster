@@ -1,11 +1,9 @@
 #!/bin/bash -xe
-# set up kafka configuration of server.properties
-
 bench_dir=/opt/scriptKafka
 prd_temp_file=$bench_dir/producer.properties
 brk_f=$bench_dir/brk.conf
-prd_f=$bench_dir/cons.conf
-prd_dest_file=/home/tushar/kafka_2.11-1.0.0/config/
+prd_f=$bench_dir/prd.conf
+prd_dest_file=/root/kafka_2.11-1.0.0/config/
 
 # creating broker_list below:
 brk_list=""
@@ -28,9 +26,17 @@ done < $brk_f
 
 pushd $bench_dir
 
-##configuring consumer.properties
-sed -i "s/^bootstrap.servers/#bootstrap.servers/" $prd_temp_file
-echo "bootstrap.servers=$brk_list" >> $prd_temp_file
+#configuring producer.properties.
+configComment(){
+  sed -i "s/^\([^#]\)/#\1/g" $prd_temp_file
+  sed -i "s/^bootstrap.servers/#bootstrap.servers/" $prd_temp_file
+}
+
+#updating producer.properties.
+configUpdate(){
+  echo "bootstrap.servers=$brk_list" >> $prd_temp_file
+  echo "compression.type=none" >> $prd_temp_file
+}
 
 prd_list=""
 [ ! -f $prd_f ] && { echo "$prd_f file not found"; exit 1; }
@@ -40,8 +46,16 @@ do
   prd_list="$prd_list $f"
 done < $prd_f
 
-for prd in $prd_list
-do
-  echo $prd
-  scp $prd_temp_file tushar@prd:$prd_dest_file
-done
+#copy config producer.properties to producer machine.
+configCopy(){
+  for prd in $prd_list
+  do
+    echo $prd
+    scp $prd_temp_file root@$prd:$prd_dest_file
+  done
+}
+
+#calling methods in sequence.
+configComment
+configUpdate
+configCopy

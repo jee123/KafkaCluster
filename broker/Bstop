@@ -17,14 +17,15 @@ done < $brk_f
 #also change broker machine from falcon to VM so we may have root access.
 # after creating vm then change tushar -> root in all broker scripts.
 # use already existing vms zk-1, zk-3 and zk-4.
+# need to make cases for starting 1 broker on each machine, 2 brokers on each machine and then 3 brokers on each machine.  
 for brk in $brk_list
 do
     echo $brk
     if [ "$num_brokers" -eq "1" ]; then
-        ssh root@$brk $bin_dir/kafka-server-start.sh $config_dir/server.properties &
+        ssh root@$brk $bin_dir/kafka-server-stop.sh $config_dir/server.properties &
     else
-        ssh root@$brk $bin_dir/kafka-server-start.sh $config_dir/server.properties &
-        ssh root@$brk $bin_dir/kafka-server-start.sh $config_dir/server-1.properties &
-        ssh root@$brk $bin_dir/kafka-server-start.sh $config_dir/server-2.properties &
+        ssh root@$brk $bin_dir/kafka-server-stop.sh $config_dir/server.properties &
+        ssh root@$brk $bin_dir/kafka-server-stop.sh $config_dir/server-1.properties &
+        ssh root@$brk $bin_dir/kafka-server-stop.sh $config_dir/server-2.properties &
     fi
 done

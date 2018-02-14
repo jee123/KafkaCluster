@@ -1,13 +1,10 @@
 #!/bin/bash -xe
-# set up kafka configuration of server.properties
-
 bench_dir=/opt/scriptKafka
 cons_temp_file=$bench_dir/consumer.properties
 brk_f=$bench_dir/brk.conf
 cons_f=$bench_dir/cons.conf
-cons_dest_file=/home/tushar/kafka_2.11-1.0.0/config/
+cons_dest_file=/root/kafka_2.11-1.0.0/config/
 
-#broker_list=br-0:9092,br-0:9093,br-0:9094
 # creating broker_list below:
 brk_list=""
 [ ! -f $brk_f ] && { echo "$brk_f file not found"; exit 1; }
@@ -29,9 +26,17 @@ done < $brk_f
 
 pushd $bench_dir
 
-##configuring consumer.properties
-sed -i "s/^bootstrap.servers/#bootstrap.servers/" $cons_temp_file
-echo "bootstrap.servers=$brk_list" >> $cons_temp_file
+#configuring consumer.properties.
+configComment(){
+  sed -i "s/^\([^#]\)/#\1/g" $cons_temp_file
+  sed -i "s/^bootstrap.servers/#bootstrap.servers/" $cons_temp_file
+}
+
+#updating consumer.properties.
+configUpdate(){
+  echo "bootstrap.servers=$brk_list" >> $cons_temp_file
+  echo "group.id=test-consumer-group" >> $cons_temp_file
+}
 
 cons_list=""
 [ ! -f $cons_f ] && { echo "$cons_f file not found"; exit 1; }
@@ -41,8 +46,16 @@ do
   cons_list="$cons_list $f"
 done < $cons_f
 
-for cons in $cons_list
-do
-  echo $cons
-  scp $cons_temp_file tushar@cons:$cons_dest_file
-done
+#copy config consumer.properties to all consumers.
+configCopy(){
+  for cons in $cons_list
+  do
+    echo $cons
+    scp $cons_temp_file root@$cons:$cons_dest_file
+  done
+}
+
+#calling methods in sequence.
+configComment
+configUpdate
+configCopy

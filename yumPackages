@@ -1,0 +1,85 @@
+#!/bin/bash -xe
+bench_dir=/opt/scriptKafka
+package_f=$bench_dir/package.conf
+brk_f=$bench_dir/brk.conf
+prd_f=$bench_dir/prd.conf
+cons_f=$bench_dir/cons.conf
+zoo_f=$bench_dir/zoo.conf
+
+pushd $bench_dir
+install_machine=$1
+package_list=""
+[ ! -f $package_f ] && { echo "$package_f file not found"; exit 1; }
+
+while read f
+do
+    package_list="$package_list $f"
+done < $package_f
+
+
+brk_list=""
+[ ! -f $brk_f ] && { echo "$brk_f file not found"; exit 1; }
+
+while read f
+do
+    brk_list="$brk_list $f"
+done < $brk_f
+
+zoo_list=""
+[ ! -f $zoo_f ] && { echo "$zoo_f file not found"; exit 1; }
+
+while read f
+do
+    zoo_list="$zoo_list $f"
+done < $zoo_f
+
+
+prd_list=""
+[ ! -f $prd_f ] && { echo "$prd_f file not found"; exit 1; }
+
+while read f
+do
+    prd_list="$prd_list $f"
+done < $prd_f
+
+cons_list=""
+[ ! -f $cons_f ] && { echo "$cons_f file not found"; exit 1; }
+
+while read f
+do
+    cons_list="$cons_list $f"
+done < $cons_f
+
+for package in $package_list
+do
+    case $install_machine in
+        broker)
+            for brk in $brk_list
+            do
+                ssh root@$brk "yum install $package -y;"
+            done
+            ;;
+
+        zookeeper)
+            for zoo in $zoo_list
+            do 
+                ssh root@$zoo "yum install $package -y;"
+            done
+            ;;
+
+        producer)
+            for prd in $prd_list
+            do  
+                ssh root@$prd "yum install $package -y;"
+            done
+            ;;  
+
+        consumer)
+            for cons in $cons_list
+            do  
+                ssh root@$cons "yum install $package -y;"
+            done
+            ;; 
+
+    esac
+done  

@@ -4,13 +4,14 @@ bench_dir=/opt/scriptKafka
 brk_temp_file=$bench_dir/server.properties
 brk_temp_file_1=$bench_dir/server-1.properties
 brk_temp_file_2=$bench_dir/server-2.properties
-brk_dest_file=/home/tushar/kafka_2.11-1.0.0/config/
+brk_dest_file=/root/kafka_2.11-1.0.0/config/
 
 brk_f=$bench_dir/brk.conf
-zoo_quorum=zk-1:2181,zk-3:2181,zk-4:2181
-brk_log_dir=/home/tushar/logs/kafka-logs
-brk_log_dir_1=/home/tushar/logs/kafka-logs-1
-brk_log_dir_2=/home/tushar/logs/kafka-logs-2
+zoo_quorum=zk-1:2181,zk-3:2181,zk-4:2181/kafka
+#zoo_quorum=zk-1:2181/kafka
+brk_log_dir=/root/logs/kafka-logs
+brk_log_dir_1=/root/logs/kafka-logs-1
+brk_log_dir_2=/root/logs/kafka-logs-2
 
 pushd $bench_dir
 
@@ -22,116 +23,155 @@ do
   brk_list="$brk_list $f"
 done < $brk_f
 
-#defining the configuration first in temp file
-#Then copy that file to all zookeeper macchines.
-for i in $bench_dir/server*;
+#comment all configs in server/server-1/server-2.properties.
+configComment(){
+    for i in $bench_dir/server*
+    do
+        sed -i "s/^\([^#]\)/#\1/g" $i
+        sed -i "s/^broker.id/#broker.id/" $i
+        sed -i "s/^num.network.threads/#num.network.threads/" $i
+        sed -i "s/^num.io.threads/#num.io.threads/" $i
+        sed -i "s/^socket.send.buffer.bytes/#socket.send.buffer.bytes/" $i
+        sed -i "s/^socket.receive.buffer.bytes/#socket.receive.buffer.bytes/" $i
+        sed -i "s/^socket.request.max.bytes/#socket.request.max.bytes/" $i
+        sed -i "s/^log.dirs/#log.dirs/" $i
+        sed -i "s/^num.partitions/#num.partitions/" $i
+        sed -i "s/^num.recovery.threads.per.data.dir/#num.recovery.threads.per.data.dir/" $i
+        sed -i "s/^log.retention.hours/#log.retention.hours/" $i
+        sed -i "s/^zookeeper.connect/#zookeeper.connect/" $i
+        sed -i "s/^zookeeper.connection.timeout.ms/#zookeeper.connection.timeout.ms/" $i
+    done
+}
+
+#update all config in server/server-1/server-2.properties.
+#$1 is brk name and $2 is brk_temp_file/brk_temp_file_1/brk_temp_file_2
+configUpdate(){
+  case $2 in
+    $brk_temp_file)
+      echo "broker.id=$3" >> $2
+      echo "num.network.threads=16" >> $2
+      echo "num.io.threads=16" >> $2
+      echo "socket.send.buffer.bytes=104857600" >> $2
+      echo "socket.receive.buffer.bytes=104857600" >> $2
+      echo "socket.request.max.bytes=104857600" >> $2
+      echo "log.dirs=$brk_log_dir" >> $2
+      echo "num.partitions=12" >> $2
+      echo "num.recovery.threads.per.data.dir=4" >> $2
+      echo "log.retention.minutes=5" >> $2
+      echo "zookeeper.connect=$zoo_quorum" >> $2
+      echo "zookeeper.connection.timeout.ms=100000" >> $2
+      echo "request.timeout.ms=100000" >> $2
+      echo "log.cleaner.threads=16" >> $2
+      echo "background.threads=16" >> $2
+      echo "num.replica.fetchers=16" >> $2
+      echo "listeners=PLAINTEXT://$1:9092" >> $2
+      echo "delete.topic.enable=true" >> $2
+      echo "offsets.commit.timeout.ms=500000" >> $2
+      echo "replica.fetch.wait.max.ms=5000" >> $2
+      echo "replica.socket.receive.buffer.bytes=67108864" >> $2
+      echo "replica.socket.timeout.ms=300000" >> $2
+      echo "log.cleaner.backoff.ms=60000" >> $2
+      ;;
+
+    $brk_temp_file_1)
+      echo "broker.id=$3" >> $2
+      echo "num.network.threads=16" >> $2
+      echo "num.io.threads=16" >> $2
+      echo "socket.send.buffer.bytes=104857600" >> $2
+      echo "socket.receive.buffer.bytes=104857600" >> $2
+      echo "socket.request.max.bytes=104857600" >> $2
+      echo "log.dirs=$brk_log_dir_1" >> $2
+      echo "num.partitions=12" >> $2
+      echo "num.recovery.threads.per.data.dir=4" >> $2
+      echo "log.retention.minutes=5" >> $2
+      echo "zookeeper.connect=$zoo_quorum" >> $2
+      echo "zookeeper.connection.timeout.ms=100000" >> $2
+      echo "request.timeout.ms=100000" >> $2
+      echo "log.cleaner.threads=16" >> $2
+      echo "background.threads=16" >> $2
+      echo "num.replica.fetchers=16" >> $2
+      echo "listeners=PLAINTEXT://$1:9093" >> $2
+      echo "delete.topic.enable=true" >> $2
+      echo "offsets.commit.timeout.ms=500000" >> $2
+      echo "replica.fetch.wait.max.ms=5000" >> $2
+      echo "replica.socket.receive.buffer.bytes=67108864" >> $2
+      echo "replica.socket.timeout.ms=300000" >> $2
+      echo "log.cleaner.backoff.ms=60000" >> $2
+      ;;
+
+    $brk_temp_file_2)
+      echo "broker.id=$3" >> $2
+      echo "num.network.threads=16" >> $2
+      echo "num.io.threads=16" >> $2
+      echo "socket.send.buffer.bytes=104857600" >> $2
+      echo "socket.receive.buffer.bytes=104857600" >> $2
+      echo "socket.request.max.bytes=104857600" >> $2
+      echo "log.dirs=$brk_log_dir_2" >> $2
+      echo "num.partitions=12" >> $2
+      echo "num.recovery.threads.per.data.dir=4" >> $2
+      echo "log.retention.minutes=5" >> $2
+      echo "zookeeper.connect=$zoo_quorum" >> $2
+      echo "zookeeper.connection.timeout.ms=100000" >> $2
+      echo "request.timeout.ms=100000" >> $2
+      echo "log.cleaner.threads=16" >> $2
+      echo "background.threads=16" >> $2
+      echo "num.replica.fetchers=16" >> $2
+      echo "listeners=PLAINTEXT://$1:9094" >> $2
+      echo "delete.topic.enable=true" >> $2
+      echo "offsets.commit.timeout.ms=500000" >> $2
+      echo "replica.fetch.wait.max.ms=5000" >> $2
+      echo "replica.socket.receive.buffer.bytes=67108864" >> $2
+      echo "replica.socket.timeout.ms=300000" >> $2
+      echo "log.cleaner.backoff.ms=60000" >> $2
+      ;;
+    esac
+}
+
+
+
+#copy config file(server/server-1/server-2) to all broker machines.
+#$1 is brk name and $2 is brk_temp_file/brk_temp_file_1/brk_temp_file_2
+configCopy(){
+  echo $1
+  scp $2 root@$1:$brk_dest_file
+}
+
+count=-1
+#calling methods in sequence.
+for i in $bench_dir/server*
 do
-    sed -i "s/^broker.id/#broker.id/" $i
-    sed -i "s/^num.network.threads/#num.network.threads/" $i
-    sed -i "s/^num.io.threads/#num.io.threads/" $i
-    sed -i "s/^socket.send.buffer.bytes/#socket.send.buffer.bytes/" $i
-    sed -i "s/^socket.receive.buffer.bytes/#socket.receive.buffer.bytes/" $i
-    sed -i "s/^socket.request.max.bytes/#socket.request.max.bytes/" $i
-    sed -i "s/^log.dirs/#log.dirs/" $i
-    sed -i "s/^num.partitions/#num.partitions/" $i
-    sed -i "s/^num.recovery.threads.per.data.dir/#num.recovery.threads.per.data.dir/" $i
-    sed -i "s/^log.retention.hours/#log.retention.hours/" $i
-    sed -i "s/^zookeeper.connect/#zookeeper.connect/" $i
-    sed -i "s/^zookeeper.connection.timeout.ms/#zookeeper.connection.timeout.ms/" $i
-done
+  case $i in
+      $brk_temp_file)
 
+      for brk in $brk_list
+      do
+          configComment
+          count=$((count+1))
+          configUpdate $brk $brk_temp_file $count
+          configCopy $brk $brk_temp_file
+      done
+      ;;
 
+      $brk_temp_file_1)
 
-for i in $bench_dir/server*;
-do
-    case $i in
-        $brk_temp_file)
-            echo "broker.id=0" >> $brk_temp_file
-            echo "num.network.threads=16" >> $brk_temp_file
-            echo "num.io.threads=16" >> $brk_temp_file
-            echo "socket.send.buffer.bytes=104857600" >> $brk_temp_file
-            echo "socket.receive.buffer.bytes=104857600" >> $brk_temp_file
-            echo "socket.request.max.bytes=104857600" >> $brk_temp_file
-            echo "log.dirs=$brk_log_dir" >> $brk_temp_file
-            echo "num.partitions=12" >> $brk_temp_file
-            echo "num.recovery.threads.per.data.dir=4" >> $brk_temp_file
-            echo "log.retention.minutes=5" >> $brk_temp_file
-            echo "zookeeper.connect=$zoo_quorum" >> $brk_temp_file
-            echo "zookeeper.connection.timeout.ms=100000" >> $brk_temp_file
-            echo "request.timeout.ms=100000" >> $brk_temp_file
-            echo "log.cleaner.threads=16" >> $brk_temp_file
-            echo "background.threads=16" >> $brk_temp_file
-            echo "num.replica.fetchers=16" >> $brk_temp_file
-            echo "listeners=PLAINTEXT://f0:9092" >> $brk_temp_file
-            echo "delete.topic.enable=true" >> $brk_temp_file
-            echo "offsets.commit.timeout.ms=500000" >> $brk_temp_file
-            echo "replica.fetch.wait.max.ms=5000" >> $brk_temp_file
-            echo "replica.socket.receive.buffer.bytes=67108864" >> $brk_temp_file
-            echo "replica.socket.timeout.ms=300000" >> $brk_temp_file
-            echo "log.cleaner.backoff.ms=60000" >> $brk_temp_file
-            ;;
+      for brk in $brk_list
+      do
+          configComment
+          count=$((count+1))
+          configUpdate $brk $brk_temp_file_1 $count
+          configCopy $brk $brk_temp_file_1
+      done
+      ;;
 
-        $brk_temp_file_1)
-            echo "broker.id=1" >> $brk_temp_file_1
-            echo "num.network.threads=16" >> $brk_temp_file_1
-            echo "num.io.threads=16" >> $brk_temp_file_1
-            echo "socket.send.buffer.bytes=104857600" >> $brk_temp_file_1
-            echo "socket.receive.buffer.bytes=104857600" >> $brk_temp_file_1
-            echo "socket.request.max.bytes=104857600" >> $brk_temp_file_1
-            echo "log.dirs=$brk_log_dir_1" >> $brk_temp_file_1
-            echo "num.partitions=12" >> $brk_temp_file_1
-            echo "num.recovery.threads.per.data.dir=4" >> $brk_temp_file_1
-            echo "log.retention.minutes=5" >> $brk_temp_file_1
-            echo "zookeeper.connect=$zoo_quorum" >> $brk_temp_file_1
-            echo "zookeeper.connection.timeout.ms=100000" >> $brk_temp_file_1
-            echo "request.timeout.ms=100000" >> $brk_temp_file_1
-            echo "log.cleaner.threads=16" >> $brk_temp_file_1
-            echo "background.threads=16" >> $brk_temp_file_1
-            echo "num.replica.fetchers=16" >> $brk_temp_file_1
-            echo "listeners=PLAINTEXT://f0:9093" >> $brk_temp_file_1
-            echo "delete.topic.enable=true" >> $brk_temp_file_1
-            echo "offsets.commit.timeout.ms=500000" >> $brk_temp_file_1
-            echo "replica.fetch.wait.max.ms=5000" >> $brk_temp_file_1
-            echo "replica.socket.receive.buffer.bytes=67108864" >> $brk_temp_file_1
-            echo "replica.socket.timeout.ms=300000" >> $brk_temp_file_1
-            echo "log.cleaner.backoff.ms=60000" >> $brk_temp_file_1
-            ;;
+      $brk_temp_file_2)
 
-        $brk_temp_file_2)
-            echo "broker.id=2" >> $brk_temp_file_2
-            echo "num.network.threads=16" >> $brk_temp_file_2
-            echo "num.io.threads=16" >> $brk_temp_file_2
-            echo "socket.send.buffer.bytes=104857600" >> $brk_temp_file_2
-            echo "socket.receive.buffer.bytes=104857600" >> $brk_temp_file_2
-            echo "socket.request.max.bytes=104857600" >> $brk_temp_file_2
-            echo "log.dirs=$brk_log_dir_1" >> $brk_temp_file_2
-            echo "num.partitions=12" >> $brk_temp_file_2
-            echo "num.recovery.threads.per.data.dir=4" >> $brk_temp_file_2
-            echo "log.retention.minutes=5" >> $brk_temp_file_2
-            echo "zookeeper.connect=$zoo_quorum" >> $brk_temp_file_2
-            echo "zookeeper.connection.timeout.ms=100000" >> $brk_temp_file_2
-            echo "request.timeout.ms=100000" >> $brk_temp_file_2
-            echo "log.cleaner.threads=16" >> $brk_temp_file_2
-            echo "background.threads=16" >> $brk_temp_file_2
-            echo "num.replica.fetchers=16" >> $brk_temp_file_2
-            echo "listeners=PLAINTEXT://f0:9094" >> $brk_temp_file_2
-            echo "delete.topic.enable=true" >> $brk_temp_file_2
-            echo "offsets.commit.timeout.ms=500000" >> $brk_temp_file_2
-            echo "replica.fetch.wait.max.ms=5000" >> $brk_temp_file_2
-            echo "replica.socket.receive.buffer.bytes=67108864" >> $brk_temp_file_2
-            echo "replica.socket.timeout.ms=300000" >> $brk_temp_file_2
-            echo "log.cleaner.backoff.ms=60000" >> $brk_temp_file_2
-            ;;
-
-      esac
-
-done
-
-
-for brk in $brk_list
-do
-  echo $brk
-  scp $brk_temp_file tushar@$brk:$brk_dest_file
-  scp $brk_temp_file_1 tushar@$brk:$brk_dest_file_1
-  scp $brk_temp_file_2 tushar@$brk:$brk_dest_file_2
+      for brk in $brk_list
+      do
+          configComment
+          count=$((count+1))
+          configUpdate $brk $brk_temp_file_2 $count
+          configCopy $brk $brk_temp_file_2
+      done
+      ;;
+   esac
 done

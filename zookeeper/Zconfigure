@@ -26,26 +26,40 @@ do
 done < $zoo_f
 
 #defining the configuration first in temp file
-#Then copy that file to all zookeeper macchines.
-sed -i "s/^\([^#]\)/#\1/g" $zoo_temp_file
-sed -i "s/^dataDir/#dataDir/" $zoo_temp_file
-sed -i "s/^clientPort/#clientPort/" $zoo_temp_file
-sed -i "s/^maxClientCnxns/#maxClientCnxns/" $zoo_temp_file
-sed -i "s/^dataLogDir/#dataLogDir/" $zoo_temp_file
-echo "dataDir=$zoo_snapshot_dir" >> $zoo_temp_file
-echo "dataLogDir=$zoo_transactionlog_dir" >> $zoo_temp_file
-echo "clientPort=$zoo_client_port" >> $zoo_temp_file
-echo "maxClientCnxns=$zoo_maxClientCnxns" >> $zoo_temp_file
-echo "tickTime=$zoo_tickTime" >> $zoo_temp_file
-echo "initLimit=$zoo_initLimit" >> $zoo_temp_file
-echo "syncLimit=$zoo_syncLimit" >> $zoo_temp_file
-echo "server.1=$zoo_server1" >> $zoo_temp_file
-echo "server.2=$zoo_server2" >> $zoo_temp_file
-echo "server.3=$zoo_server3" >> $zoo_temp_file
+#Then copy that file to all zookeeper machines.
+#Comment config in zookeeper.properties.
+configComment(){
+    sed -i "s/^\([^#]\)/#\1/g" $zoo_temp_file
+    sed -i "s/^dataDir/#dataDir/" $zoo_temp_file
+    sed -i "s/^clientPort/#clientPort/" $zoo_temp_file
+    sed -i "s/^maxClientCnxns/#maxClientCnxns/" $zoo_temp_file
+    sed -i "s/^dataLogDir/#dataLogDir/" $zoo_temp_file
+}
 
+#update config in zookeeper.properties.
+configUpdate(){
+    echo "dataDir=$zoo_snapshot_dir" >> $zoo_temp_file
+    echo "dataLogDir=$zoo_transactionlog_dir" >> $zoo_temp_file
+    echo "clientPort=$zoo_client_port" >> $zoo_temp_file
+    echo "maxClientCnxns=$zoo_maxClientCnxns" >> $zoo_temp_file
+    echo "tickTime=$zoo_tickTime" >> $zoo_temp_file
+    echo "initLimit=$zoo_initLimit" >> $zoo_temp_file
+    echo "syncLimit=$zoo_syncLimit" >> $zoo_temp_file
+    echo "server.1=$zoo_server1" >> $zoo_temp_file
+    echo "server.2=$zoo_server2" >> $zoo_temp_file
+    echo "server.3=$zoo_server3" >> $zoo_temp_file
+}
 
-for zoo in $zoo_list
-do
-  echo $zoo
-  scp $zoo_temp_file root@$zoo:$zoo_dest_file
-done
+#copy config file (zookeeper.properties) to zookeeper machines.
+configCopy(){
+    for zoo in $zoo_list
+    do
+        echo $zoo
+        scp $zoo_temp_file root@$zoo:$zoo_dest_file
+    done
+}
+
+#calling methods in sequence.
+configComment
+configUpdate
+configCopy

@@ -1,5 +1,5 @@
 #!/bin/bash -xe
-bench_dir=/opt/kafka/scriptKafka
+bench_dir=/opt/scriptKafka
 brk_f=$bench_dir/brk.conf
 pushd $bench_dir
 
@@ -13,5 +13,5 @@ done < $brk_f
 
 for brk in $brk_list
 do
-    scp -r kafka_2.11-1.0.0 tushar@$brk:/home/tushar
+    scp -r kafka_2.11-1.0.0 root@$brk:/root
 done

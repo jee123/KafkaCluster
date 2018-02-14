@@ -11,16 +11,16 @@ do
   brk_list="$brk_list $f"
 done < $brk_f
 
-#mounting on servers with id 0,1 and 2 on br-0
 
 for brk in $brk_list
 do
   echo $brk
-  ssh tushar@$brk "
+  ssh root@$brk "
   lsblk;
-  mkdir /mnt/nvme;
-  mkdir /mnt/nvme/tmp;
-  mkdir /mnt/nvme/tmp-1;
-  mount /dev/nvme0n1 /home/tushar/logs
+  umount /dev/vdb;
+  rm -rf /root/logs;
+  mkdir /root/logs;
+  mkfs.xfs -f /dev/vdb;
+  mount /dev/vdb /root/logs;
   "
 done
